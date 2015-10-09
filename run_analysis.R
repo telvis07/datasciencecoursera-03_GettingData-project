@@ -28,15 +28,28 @@ fetch_uci_data <- function(){
   }
   
   print(sprintf("UCI Data : %s", uci_data))
-  # write the timestamp
 }
 
-merge_test_train_data <- function(){
-  # check for data dir
+merge_test_train_data <- function() {
   # check for uci dir
-  # read X_train.txt, y_train, then cbind
+  uci_data <- file.path("data", "UCI HAR Dataset")
+  if (!file.exists(uci_data)){
+    stop(sprintf("Could not find the UCI HAR Dataset directory : %s", uci_data))
+  }
+  
+  # read X_train.txt
+  x_test_df <- read.table(file.path(uci_data, "test", "X_test.txt"))
+  
   # read X_test.txt, y_test, then cbind
-  # bind(train, test)
-  # write csv data to 'data/uci_merged_test_train.csv
-  invisible(NULL)
+  x_train_df <- read.table(file.path(uci_data, "train", "X_train.txt"))
+  
+  # concatenate train and test data
+  all_df <- rbind(x_train_df, x_test_df)
+  
+  # return data.frame with merged test/train dataset
+  print(sprintf("NROWs train/test/merged : %d/%d/%d", 
+                nrow(x_train_df), 
+                nrow(x_test_df),
+                nrow(all_df)))
+  all_df
 }
