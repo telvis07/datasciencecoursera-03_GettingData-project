@@ -51,7 +51,7 @@ merge_data <- function(subdir) {
 
   feature_names <- features_df[,"feature_name"]
   
-  # read test data
+  # read data
   x_df <- read.table(file.path(uci_data, subdir, sprintf("X_%s.txt", subdir)), 
                           col.names = feature_names)
 
@@ -61,22 +61,37 @@ merge_data <- function(subdir) {
   y_df <- read.table(file.path(uci_data, subdir, sprintf("y_%s.txt", subdir)),
                           col.names = c("activity"))
   
-  test_df = cbind(x_df, x_test_subject_df, y_df)
+  df = cbind(x_df, x_test_subject_df, y_df)
   
-  test_df
+  # return data with all rows
+  df
 }
   
-concat_test_train_data <- function(){
+merge_test_train_data <- function(){
   x_train_df = merge_data("train")
   x_test_df = merge_data("test")
   # concatenate train and test data
   all_df <- rbind(x_train_df, x_test_df)
   
   # return data.frame with merged test/train dataset
-  print(sprintf("NROWs train/test/merged : %d/%d/%d", 
+  print(sprintf("NROWs train/test/merged : %d/%d/%d. NCOLs : %d", 
                 nrow(x_train_df), 
                 nrow(x_test_df),
-                nrow(all_df)))
+                nrow(all_df),
+                ncol(all_df)))
+  
+  # select columns with std() and mean()
+  idx = grep("mean()", df_colnames)
+  mean_cols = df_colnames[idx]
+  idx = grep("std()", df_colnames)
+  std_cols = df_colnames[idx]
+  
+  filter_cols = c(mean_cols, std_cols)
+  all_df = all_df[,filter_cols]
+  
+  print(sprintf("NCOLs after filtering for std()/mean() : %d", 
+                ncol(all_df)))
+
   all_df
 }
   
