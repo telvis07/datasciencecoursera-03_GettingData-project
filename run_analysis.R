@@ -54,20 +54,41 @@ merge_data <- function(subdir) {
   # read data
   x_df <- read.table(file.path(uci_data, subdir, sprintf("X_%s.txt", subdir)), 
                           col.names = feature_names)
+  
+  # Extract only the measurements on the mean and standard deviation for each measurement.
+  # select columns containing std() and mean()
+  df_colnames <- colnames(x_df)
+  idx <- grep("mean()", df_colnames)
+  mean_cols <- df_colnames[idx]
+  idx <- grep("std()", df_colnames)
+  std_cols <- df_colnames[idx]
+  filter_cols <- c(mean_cols, std_cols)
+  
+  # overwrite df with fewer cols
+  x_df = x_df[,filter_cols]
 
   x_test_subject_df <- read.table(file.path(uci_data, subdir, sprintf("subject_%s.txt", subdir)),
                                   col.names = c("subject"))
   
+  # read activities
   y_df <- read.table(file.path(uci_data, subdir, sprintf("y_%s.txt", subdir)),
                           col.names = c("activity"))
   
-  df = cbind(x_df, x_test_subject_df, y_df)
+  # convert activity ID to a factor variable
+  labels = read.table(file.path(uci_data, "activity_labels.txt"), 
+                      col.names = c("id", "name"))
+  y_df$activity <- factor(y_df$activity, labels$id, labels$name)
   
+  # cbind all rows
+  df = cbind(x_df, x_test_subject_df, y_df)
+
   # return data with all rows
   df
 }
   
 merge_test_train_data <- function(){
+  
+  # 1. Merge the training and the test sets to create one data set.
   x_train_df = merge_data("train")
   x_test_df = merge_data("test")
   # concatenate train and test data
@@ -79,19 +100,16 @@ merge_test_train_data <- function(){
                 nrow(x_test_df),
                 nrow(all_df),
                 ncol(all_df)))
-  
-  # select columns with std() and mean()
-  idx = grep("mean()", df_colnames)
-  mean_cols = df_colnames[idx]
-  idx = grep("std()", df_colnames)
-  std_cols = df_colnames[idx]
-  
-  filter_cols = c(mean_cols, std_cols)
-  all_df = all_df[,filter_cols]
-  
-  print(sprintf("NCOLs after filtering for std()/mean() : %d", 
-                ncol(all_df)))
 
+  # 3. Uses descriptive activity names to name the activities in the data set
+  # TODO: update the activity column with values from 
+  #   cat data/UCI\ HAR\ Dataset/activity_labels.txt
+  #   1 WALKING
+  #   2 WALKING_UPSTAIRS
+  #   3 WALKING_DOWNSTAIRS
+  #   4 SITTING
+  #   5 STANDING
+  #   6 LAYING
   all_df
 }
   
