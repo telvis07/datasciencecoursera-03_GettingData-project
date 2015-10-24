@@ -169,7 +169,7 @@ merge_test_train_data <- function(){
 }
 
 make_tidy_data <- function(df){
-  # creates a second, independent tidy data set with the average of each variable
+  # creates a independent tidy data set with the average of each variable
   # for each activity and each subject.
   
   # get 'factor' columns 
@@ -199,6 +199,8 @@ run_analysis_main <- function() {
   fetch_uci_data()
   df <- merge_test_train_data()
   tidy_df <- make_tidy_data(df)
+  # return tidy data
+  tidy_df
 }
   
 
