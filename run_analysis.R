@@ -10,6 +10,62 @@
 # 5. From the data set in step 4, creates a second, independent tidy data set with the average of each 
 #    variable for each activity and each subject.
 
+fix_colnames <- function(colnames){
+  pattern_values <- c(
+    "Acc",
+    "Gyro",
+    "Mag",
+    "mean\\(\\)", #: Mean value
+    "std\\(\\)", #: Standard deviation
+    "mad\\(\\)", #: Median absolute deviation 
+    "max\\(\\)", #: Largest value in array
+    "min\\(\\)", #: Smallest value in array
+    "sma\\(\\)", # Signal magnitude area
+    "\\(",
+    "\\)"
+  )
+  
+  replace_values <- c(
+    "Accelerometer",
+    "Gyroscope",
+    "Magnitude",
+    "Mean",
+    "StandardDeviation",
+    "MedianAbsoluteDeviation",
+    "Maximum",
+    "Minimum",
+    "SignalMagnitudeArea",
+    "",
+    ""
+  )
+  
+  search_replace_df = data.frame(pattern=pattern_values,
+                                 replace=replace_values)
+  out <- vector()
+
+  for (i in seq(length(colnames))){
+    cname_fixed <- colnames[i]
+    for (j in seq(nrow(search_replace_df))){
+      print (sprintf("[fix_colnames] search / replace / string : %s / %s / %s", 
+                     search_replace_df[j, "pattern"],
+                     search_replace_df[j, "replace"],
+                     cname_fixed),
+             max=1024)
+      if (grepl(search_replace_df[j, "pattern"], cname_fixed)){
+        cname_fixed <- sub(search_replace_df[j, "pattern"], 
+                           search_replace_df[j, "replace"],
+                           cname_fixed)
+        print(sprintf("[fix_colnames] before / fixed %s / %s", colnames[i], cname_fixed))
+      }
+    }
+    # replace dashes
+    cname_fixed <- gsub("[-]","",cname_fixed)
+    out <- c(out, cname_fixed)
+  }
+  
+  out
+}
+
 # Function to fetch the dataset
 fetch_uci_data <- function(){
   data_dir = "./data"
@@ -49,21 +105,22 @@ merge_data <- function(subdir) {
   features_df <- read.table(file.path(uci_data, "features.txt"), 
                             col.names = c("feature_id", "feature_name"))
 
-  feature_names <- features_df[,"feature_name"]
+  feature_names <- fix_colnames(features_df[,"feature_name"])
+  # print (feature_names)
   
   # read data
   x_df <- read.table(file.path(uci_data, subdir, sprintf("X_%s.txt", subdir)), 
                           col.names = feature_names)
-  
+
   # Extract only the measurements on the mean and standard deviation for each measurement.
   # select columns containing std() and mean()
   df_colnames <- colnames(x_df)
-  idx <- grep("mean()", df_colnames)
+  idx <- grep("Mean", df_colnames)
   mean_cols <- df_colnames[idx]
-  idx <- grep("std()", df_colnames)
+  idx <- grep("StandardDeviation", df_colnames)
   std_cols <- df_colnames[idx]
   filter_cols <- c(mean_cols, std_cols)
-  
+
   # overwrite df with fewer cols
   x_df = x_df[,filter_cols]
 
