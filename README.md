@@ -22,16 +22,22 @@ You should create one R script called `run_analysis.R` that does the following.
 4. Appropriately labels the data set with descriptive variable names. 
 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
-## To fetch the code
+## Running the Code
+
+### To fetch the code
     
     git clone git@github.com:telvis07/datasciencecoursera-03_GettingData-project.git
     cd datasciencecoursera-03_GettingData-project
 
-## To run the scripts in R
+### To run the scripts in R
 
     setwd("/path/to/datasciencecoursera-03_GettingData-project")
     source("run_analysis.R")
     df <- run_analysis_main()
+
+### To load the tidy data
+
+    df <- read.table("tidy_uci_dataset.txt", header=TRUE)
 
 ## Output
 
