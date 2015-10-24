@@ -69,11 +69,11 @@ fix_colnames <- function(colnames){
   out
 }
 
-# Function to fetch the dataset
-fetch_uci_data <- function(){
-  data_dir = "./data"
-  zipfile <- file.path("data", "uci_har_dataset.zip")
-  uci_data <- file.path("data", "UCI HAR Dataset")
+fetch_uci_data <- function(data_dir="./"){
+  # Function to fetch the dataset
+  
+  zipfile <- file.path(data_dir, "uci_har_dataset.zip")
+  uci_data <- file.path(data_dir, "UCI HAR Dataset")
   file_url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip "
   
   # check for data zip
@@ -97,9 +97,9 @@ fetch_uci_data <- function(){
   print(sprintf("UCI Data : %s", uci_data))
 }
 
-merge_data <- function(subdir) {
+merge_data <- function(subdir, data_dir="./") {
   # check for uci dir
-  uci_data <- file.path("data", "UCI HAR Dataset")
+  uci_data <- file.path(data_dir, "UCI HAR Dataset")
   if (!file.exists(uci_data)){
     stop(sprintf("Could not find the UCI HAR Dataset directory : %s", uci_data))
   }
@@ -193,8 +193,10 @@ make_tidy_data <- function(df){
 }
 
 run_analysis_main <- function() {
-  # 1. merge the test train data
-  # 2. Generate a tidy data set. Write the data.frame ./
+  # 1. Fetch the data from the web
+  # 2. merge the test train data
+  # 3. Generate a tidy data set. Write the data.frame ./
+  fetch_uci_data()
   df <- merge_test_train_data()
   tidy_df <- make_tidy_data(df)
 }
