@@ -1,4 +1,4 @@
-Course project for [Getting and Cleaning Data by Jeff Leek, PhD, Roger D. Peng, PhD, Brian Caffo, PhD](https://www.coursera.org/course/getdata)
+Course project for [Course project for Coursera/Data Science Specialization/Getting Data](https://www.coursera.org/course/getdata)
 
 # Summary
 Analyze data from UCI Human Activity Recognition Using Smartphone
