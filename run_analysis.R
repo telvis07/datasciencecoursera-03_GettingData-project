@@ -1,16 +1,18 @@
 # Analyze data from UCI Human Activity Recognition Using Smartphone
 # http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones#
 
-## Tasks
-# You should create one R script called run_analysis.R that does the following. 
-# 1. Merges the training and the test sets to create one data set.
-# 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
-# 3. Uses descriptive activity names to name the activities in the data set
-# 4. Appropriately labels the data set with descriptive variable names. 
-# 5. From the data set in step 4, creates a second, independent tidy data set with the average of each 
-#    variable for each activity and each subject.
+library(reshape2)
+
 
 fix_colnames <- function(colnames){
+  # change column names to something acceptable to make.names()
+  # The code replaces the 'pattern_values' with 'replace_values'.
+  # Args:
+  #  colnames : vector of colnames
+  # Return
+  #  vector of column names after modification
+  
+  # search patterns for grep()
   pattern_values <- c(
     "Acc",
     "Gyro",
@@ -25,6 +27,7 @@ fix_colnames <- function(colnames){
     "\\)"
   )
   
+  # replace values for sub() corresponding to an entry in 'pattern_values'
   replace_values <- c(
     "Accelerometer",
     "Gyroscope",
@@ -144,30 +147,56 @@ merge_data <- function(subdir) {
 }
   
 merge_test_train_data <- function(){
+  # Merge the training and the test sets to create one data set.
   
-  # 1. Merge the training and the test sets to create one data set.
+  # merge the train data
   x_train_df = merge_data("train")
+  
+  # merge the train data
   x_test_df = merge_data("test")
+  
   # concatenate train and test data
   all_df <- rbind(x_train_df, x_test_df)
   
-  # return data.frame with merged test/train dataset
   print(sprintf("NROWs train/test/merged : %d/%d/%d. NCOLs : %d", 
                 nrow(x_train_df), 
                 nrow(x_test_df),
                 nrow(all_df),
                 ncol(all_df)))
 
-  # 3. Uses descriptive activity names to name the activities in the data set
-  # TODO: update the activity column with values from 
-  #   cat data/UCI\ HAR\ Dataset/activity_labels.txt
-  #   1 WALKING
-  #   2 WALKING_UPSTAIRS
-  #   3 WALKING_DOWNSTAIRS
-  #   4 SITTING
-  #   5 STANDING
-  #   6 LAYING
+  # return data.frame with merged test/train dataset
   all_df
+}
+
+make_tidy_data <- function(df){
+  # creates a second, independent tidy data set with the average of each variable
+  # for each activity and each subject.
+  
+  # get 'factor' columns 
+  factor_cols <- c('activity', 'subject')
+  
+  # get measurment columns (i.e. not the 'factor' columns)
+  measure_cols <- df_cols[!df_cols %in% c('activity', 'subject')]
+
+  # melt the data, so we can summarize it.
+  melt_df <- melt(df, id=factor_cols, measure.vars = measure_cols)
+  
+  # Show the mean for each measurement
+  # for every (subject,activity) pair
+  tidy_df <- dcast(melt_df, subject+activity ~ variable, mean)
+  
+  # write tidy data to disk
+  write.table(df, "tidy_uci_dataset.txt", row.names = FALSE)
+  
+  # return tidy data
+  tidy_df
+}
+
+run_analysis_main <- function() {
+  # 1. merge the test train data
+  # 2. Generate a tidy data set. Write the data.frame ./
+  df <- merge_test_train_data()
+  tidy_df <- make_tidy_data(df)
 }
   
 
