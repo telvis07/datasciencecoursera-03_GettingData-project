@@ -3,7 +3,6 @@
 
 library(reshape2)
 
-
 fix_colnames <- function(colnames){
   # change column names to something acceptable to make.names()
   # The code replaces the 'pattern_values' with 'replace_values'.
@@ -44,10 +43,14 @@ fix_colnames <- function(colnames){
   
   search_replace_df = data.frame(pattern=pattern_values,
                                  replace=replace_values)
+  # return vector
   out <- vector()
 
+  # loop over column names
   for (i in seq(length(colnames))){
     cname_fixed <- colnames[i]
+    
+    # loop over search/replace patterns
     for (j in seq(nrow(search_replace_df))){
       print (sprintf("[fix_colnames] search / replace / string : %s / %s / %s", 
                      search_replace_df[j, "pattern"],
