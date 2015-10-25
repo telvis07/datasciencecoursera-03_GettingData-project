@@ -57,7 +57,9 @@ fix_colnames <- function(colnames){
                      search_replace_df[j, "replace"],
                      cname_fixed),
              max=1024)
+      # search
       if (grepl(search_replace_df[j, "pattern"], cname_fixed)){
+        # replace
         cname_fixed <- sub(search_replace_df[j, "pattern"], 
                            search_replace_df[j, "replace"],
                            cname_fixed)
